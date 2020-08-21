@@ -22,18 +22,22 @@ not_found do
 end
 
 get '/' do
-  not_found
+  erb :index, :locals => {:backups => Dir["#{BACKUP_DIR}/*.sql"].sort_by{|path| File::Stat.new(path).ctime}.reverse.map{|path| path.split("/")[-1]}}
 end
 
 get '/backup/*.sql' do |file|
-  not_found
+  if Dir["#{BACKUP_DIR}/*.sql"].include?("#{BACKUP_DIR}/#{file}.sql")
+    send_file "#{BACKUP_DIR}/#{file}.sql"
+  else
+    not_found
+  end
 end
 
 post '/' do
   now = Time.now
   file = params[:file][:tempfile]
 
-  File.open("#{BACKUP_DIR}/#{now.strftime("%Y-%m-%d_%H-%M-%S")}.sql", 'wb') do |f|
+  File.open("#{BACKUP_DIR}/#{now.strftime("%Y-%m-%d_%H-%M-%S.%N")}.sql", 'wb') do |f|
     f.write(file.read)
   end
   
