@@ -1,0 +1,22 @@
+[Unit]
+Description=WLMOJ Backup Storage Server
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+WorkingDirectory=/home/backup
+
+User=backup
+Group=backup
+
+Environment="APP_ENV=production"
+Environment="BACKUP_DIR=/home/backup/dumps"
+Environment="BIND_ADDRESS=0.0.0.0"
+Environment="BIND_PORT=8008"
+
+ExecStart=ruby /home/backup/backup-server.rb
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
